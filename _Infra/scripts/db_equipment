@@ -1,0 +1,53 @@
+drop table packs; 
+drop table users; 
+drop table parameters; 
+drop table positions; 
+drop table type_equipment;
+
+-- ddl type_equipment 
+create table type_equipment( 
+	id_equipment_type integer primary key, 
+	equipment_type varchar(255) 
+);
+
+-- ddl positions 
+create table positions( 
+	id_position integer primary key, 
+	name_position varchar(255) 
+);
+
+-- ddl parameters
+create table parameters (
+    id_parameter integer primary key,
+    name_parameter varchar(255),
+    unit varchar(255),
+    min_value numeric,
+    max_value numeric
+);
+
+-- ddl users
+create table users (
+    id_user integer primary key,
+    lastname varchar(255),
+    name_user varchar(255),
+    patronymic varchar(255),
+    id_position integer,
+    foreign key (id_position) references positions(id_position)
+);
+
+-- ddl packs
+create table packs (
+    id_packs integer primary key,
+    name_pack varchar(255),
+    created_at timestamp,
+    id_user integer,
+    id_equipment_type integer,
+    result_h integer,
+    result_tt numeric(4,1),
+    result_hh integer,
+    result_cc numeric(4,1),
+    foreign key (id_user) references users(id_user),
+    foreign key (id_equipment_type) references type_equipment(id_equipment_type)
+);
+
+
