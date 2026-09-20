@@ -23,9 +23,7 @@ create table parameters (
     unit varchar(20),
     min_value numeric,
     max_value numeric,
-    default_value numeric,
-    id_equipment_type integer,
-    foreign key (id_equipment_type) references type_equipment(id_equipment_type)
+    default_value numeric
 );
 
 -- ddl users
@@ -45,20 +43,11 @@ create table packs (
     created_at timestamp not null,
     id_user integer not null,
     id_equipment_type integer not null,
-
-    input_height integer,
-    input_temperature numeric(4,1),
-    input_pressure integer,
-    input_wind_direction integer,
-    input_wind_speed integer,
-    input_bullet_range integer,
-
-    result_h integer,
-    result_tt numeric(4,1),
-    result_hh integer,
-    result_cc numeric(4,1),
+    id_parameter integer not null,
+    param_value numeric not null,
     foreign key (id_user) references users(id_user),
-    foreign key (id_equipment_type) references type_equipment(id_equipment_type)
+    foreign key (id_equipment_type) references type_equipment(id_equipment_type),
+    foreign key (id_parameter) references parameters(id_parameter)
 );
 
 -- dml type_equipment
@@ -71,12 +60,12 @@ insert into positions (id_position, name_position) values (2, 'Метеорол�
 insert into positions (id_position, name_position) values (3, 'Начальник расчёта');
 
 -- dml parameters
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (1, 'Высота метеопоста', 'м', null, null, 100, null);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (2, 'Температура', '°C', -58, 58, 15, null);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (3, 'Давление', 'мм рт. ст.', 500, 900, 750, null);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (4, 'Направление ветра', 'деления угломера', 0, 59, 0, null);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (5, 'Скорость ветра', 'м/с', 0, 15, 0, 1);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (6, 'Дальность сноса пуль', 'м', 0, 150, 0, 2);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (1, 'Высота метеопоста', 'м', null, null, 100);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (2, 'Температура', '°C', -58, 58, 15);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (3, 'Давление', 'мм рт. ст.', 500, 900, 750);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (4, 'Направление ветра', 'деления угломера', 0, 59, 0);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (5, 'Скорость ветра', 'м/с', 0, 15, 0);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (6, 'Дальность сноса пуль', 'м', 0, 150, 0);
 
 -- dml users
 insert into users (id_user, login, password, full_name, id_position) values (1, 'ivanov', 'pass123', 'Иванов Иван Иванович', 1);
@@ -86,46 +75,99 @@ insert into users (id_user, login, password, full_name, id_position) values (3, 
 -- dml packs
 insert into packs (
     id_pack, name_pack, created_at, id_user, id_equipment_type,
-    input_height, input_temperature, input_pressure, input_wind_direction, input_wind_speed, input_bullet_range,
-    result_h, result_tt, result_hh, result_cc
-) values (1, '19093 0100 01509', '2026-09-19 10:30:00', 1, 1, 100, 15.0, 750, 0, 5, null, 100, 9.0, 12, 5.0);
+    id_parameter, param_value
+) values (1, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 1, 100);
 
 insert into packs (
     id_pack, name_pack, created_at, id_user, id_equipment_type,
-    input_height, input_temperature, input_pressure, input_wind_direction, input_wind_speed, input_bullet_range,
-    result_h, result_tt, result_hh, result_cc
-) values (2, '19093 0500 00007', '2026-09-19 11:15:00', 2, 1, 500, 20.0, 765, 15, 8, null, 500, 7.0, 18, 6.0);
+    id_parameter, param_value
+) values (2, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 2, 15.0);
 
 insert into packs (
     id_pack, name_pack, created_at, id_user, id_equipment_type,
-    input_height, input_temperature, input_pressure, input_wind_direction, input_wind_speed, input_bullet_range,
-    result_h, result_tt, result_hh, result_cc
-) values (3, '19093 1000 50000', '2026-09-19 12:00:00', 3, 2, 1000, 10.0, 740, 25, null, 120, 1000, 4.0, 25, 3.0);
+    id_parameter, param_value
+) values (3, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 3, 750);
 
--- select 
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (4, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 4, 0);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (5, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 5, 5);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (6, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 1, 500);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (7, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 2, 20.0);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (8, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 3, 765);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (9, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 4, 15);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (10, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 5, 8);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (11, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 1, 1000);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (12, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 2, 10.0);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (13, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 3, 740);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (14, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 4, 25);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    id_parameter, param_value
+) values (15, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 6, 120);
+
+-- select
 select
     p.id_pack,
     p.name_pack,
     p.created_at,
-    u.login,
     u.full_name,
     pos.name_position,
     te.name_equipment_type,
-    p.input_height,
-    p.input_temperature,
-    p.input_pressure,
-    p.result_h,
-    p.result_tt,
-    p.result_hh,
-    p.result_cc,
+    par.id_parameter,
     par.name_parameter,
-    par.unit,
-    par.min_value,
-    par.max_value,
-    par.default_value
+    p.param_value
 from packs p
-join users u on p.id_user = u.id_user
-join positions pos on u.id_position = pos.id_position
-join type_equipment te on p.id_equipment_type = te.id_equipment_type
-join parameters par on par.id_equipment_type is null or par.id_equipment_type = p.id_equipment_type
-order by p.id_pack, par.id_parameter;
+join users u
+    on p.id_user = u.id_user
+join positions pos
+    on u.id_position = pos.id_position
+join type_equipment te
+    on p.id_equipment_type = te.id_equipment_type
+join parameters par
+    on p.id_parameter = par.id_parameter
+order by
+    p.name_pack,
+    par.id_parameter;
