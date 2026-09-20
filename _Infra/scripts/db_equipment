@@ -159,15 +159,12 @@ select
     par.id_parameter,
     par.name_parameter,
     p.param_value
-from packs p
-join users u
+from packs as p
+join users as u
     on p.id_user = u.id_user
-join positions pos
+join positions as pos
     on u.id_position = pos.id_position
-join type_equipment te
+join type_equipment as te
     on p.id_equipment_type = te.id_equipment_type
-join parameters par
-    on p.id_parameter = par.id_parameter
-order by
-    p.name_pack,
-    par.id_parameter;
+join parameters as par
+    on p.id_parameter = par.id_parameter;
