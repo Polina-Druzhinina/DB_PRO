@@ -1,47 +1,58 @@
-drop table packs; 
-drop table users; 
-drop table parameters; 
-drop table positions; 
+drop table packs;
+drop table users;
+drop table parameters;
+drop table positions;
 drop table type_equipment;
 
--- ddl type_equipment 
-create table type_equipment( 
-	id_equipment_type integer primary key, 
-	equipment_type varchar(255) 
+-- ddl type_equipment
+create table type_equipment(
+    id_equipment_type integer primary key,
+    name_equipment_type varchar(255) not null
 );
 
--- ddl positions 
-create table positions( 
-	id_position integer primary key, 
-	name_position varchar(255) 
+-- ddl positions
+create table positions(
+    id_position integer primary key,
+    name_position varchar(255) not null
 );
 
 -- ddl parameters
 create table parameters (
     id_parameter integer primary key,
-    name_parameter varchar(255),
-    unit varchar(255),
+    name_parameter varchar(255) not null,
+    unit varchar(20),
     min_value numeric,
-    max_value numeric
+    max_value numeric,
+    default_value numeric,
+    id_equipment_type integer,
+    foreign key (id_equipment_type) references type_equipment(id_equipment_type)
 );
 
 -- ddl users
 create table users (
     id_user integer primary key,
-    lastname varchar(255),
-    name_user varchar(255),
-    patronymic varchar(255),
-    id_position integer,
+    login varchar(50) not null unique,
+    password varchar(255) not null,
+    full_name varchar(255) not null,
+    id_position integer not null,
     foreign key (id_position) references positions(id_position)
 );
 
 -- ddl packs
 create table packs (
-    id_packs integer primary key,
-    name_pack varchar(255),
-    created_at timestamp,
-    id_user integer,
-    id_equipment_type integer,
+    id_pack integer primary key,
+    name_pack varchar(255) not null,
+    created_at timestamp not null,
+    id_user integer not null,
+    id_equipment_type integer not null,
+
+    input_height integer,
+    input_temperature numeric(4,1),
+    input_pressure integer,
+    input_wind_direction integer,
+    input_wind_speed integer,
+    input_bullet_range integer,
+
     result_h integer,
     result_tt numeric(4,1),
     result_hh integer,
@@ -50,4 +61,71 @@ create table packs (
     foreign key (id_equipment_type) references type_equipment(id_equipment_type)
 );
 
+-- dml type_equipment
+insert into type_equipment (id_equipment_type, name_equipment_type) values (1, 'ДМК');
+insert into type_equipment (id_equipment_type, name_equipment_type) values (2, 'ВР');
 
+-- dml positions
+insert into positions (id_position, name_position) values (1, 'Оператор');
+insert into positions (id_position, name_position) values (2, 'Метеоролог');
+insert into positions (id_position, name_position) values (3, 'Начальник расчёта');
+
+-- dml parameters
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (1, 'Высота метеопоста', 'м', null, null, 100, null);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (2, 'Температура', '°C', -58, 58, 15, null);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (3, 'Давление', 'мм рт. ст.', 500, 900, 750, null);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (4, 'Направление ветра', 'деления угломера', 0, 59, 0, null);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (5, 'Скорость ветра', 'м/с', 0, 15, 0, 1);
+insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value, id_equipment_type) values (6, 'Дальность сноса пуль', 'м', 0, 150, 0, 2);
+
+-- dml users
+insert into users (id_user, login, password, full_name, id_position) values (1, 'ivanov', 'pass123', 'Иванов Иван Иванович', 1);
+insert into users (id_user, login, password, full_name, id_position) values (2, 'petrov', 'pass456', 'Петров Пётр Петрович', 2);
+insert into users (id_user, login, password, full_name, id_position) values (3, 'sidorov', 'pass789', 'Сидоров Алексей Алексеевич', 3);
+
+-- dml packs
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    input_height, input_temperature, input_pressure, input_wind_direction, input_wind_speed, input_bullet_range,
+    result_h, result_tt, result_hh, result_cc
+) values (1, '19093 0100 01509', '2026-09-19 10:30:00', 1, 1, 100, 15.0, 750, 0, 5, null, 100, 9.0, 12, 5.0);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    input_height, input_temperature, input_pressure, input_wind_direction, input_wind_speed, input_bullet_range,
+    result_h, result_tt, result_hh, result_cc
+) values (2, '19093 0500 00007', '2026-09-19 11:15:00', 2, 1, 500, 20.0, 765, 15, 8, null, 500, 7.0, 18, 6.0);
+
+insert into packs (
+    id_pack, name_pack, created_at, id_user, id_equipment_type,
+    input_height, input_temperature, input_pressure, input_wind_direction, input_wind_speed, input_bullet_range,
+    result_h, result_tt, result_hh, result_cc
+) values (3, '19093 1000 50000', '2026-09-19 12:00:00', 3, 2, 1000, 10.0, 740, 25, null, 120, 1000, 4.0, 25, 3.0);
+
+-- select 
+select
+    p.id_pack,
+    p.name_pack,
+    p.created_at,
+    u.login,
+    u.full_name,
+    pos.name_position,
+    te.name_equipment_type,
+    p.input_height,
+    p.input_temperature,
+    p.input_pressure,
+    p.result_h,
+    p.result_tt,
+    p.result_hh,
+    p.result_cc,
+    par.name_parameter,
+    par.unit,
+    par.min_value,
+    par.max_value,
+    par.default_value
+from packs p
+join users u on p.id_user = u.id_user
+join positions pos on u.id_position = pos.id_position
+join type_equipment te on p.id_equipment_type = te.id_equipment_type
+join parameters par on par.id_equipment_type is null or par.id_equipment_type = p.id_equipment_type
+order by p.id_pack, par.id_parameter;
