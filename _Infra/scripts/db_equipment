@@ -121,4 +121,3 @@ where p.id_user = u.id_user
   and u.id_position = pos.id_position
   and p.id_equipment_type = te.id_equipment_type
   and p.id_pack = par.id_packs
-order by p.id_pack, par.id_parameter;
