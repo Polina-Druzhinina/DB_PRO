@@ -7,48 +7,65 @@ drop table type_equipment;
 -- ddl type_equipment
 create table type_equipment(
     id_equipment_type integer primary key,
-    name_equipment_type varchar(255) not null
+    name_equipment_type varchar(50) not null 
 );
+comment on table type_equipment is 'Справочник типов оборудования';
+comment on column type_equipment.id_equipment_type is 'Уникальный идентификатор типа оборудования';
+comment on column type_equipment.name_equipment_type is 'Название типа оборудования';
 
 -- ddl positions
 create table positions(
     id_position integer primary key,
-    name_position varchar(255) not null
+    name_position varchar(100) not null
 );
+comment on table positions is 'Справочник должностей пользователей';
+comment on column positions.id_position is 'Уникальный код должности';
+comment on column positions.name_position is 'Название должности';
 
 -- ddl parameters
 create table parameters (
     id_parameter integer primary key,
     name_parameter varchar(255) not null,
-    unit varchar(20),
-    min_value numeric,
-    max_value numeric,
-    default_value numeric
+	id_packs integer not null,
+	param_value numeric not null
 );
+comment on table parameters is 'Параметры измерений, входящие в состав пачек';
+comment on column parameters.id_parameter is 'Уникальный идентификатор параметра';
+comment on column parameters.name_parameter is 'Название параметра (температура, давление и т.д.)';
+comment on column parameters.id_packs is 'Код пачки, к которой принадлежит параметр';
+comment on column parameters.param_value is 'Числовое значение параметра';
 
 -- ddl users
 create table users (
     id_user integer primary key,
-    login varchar(50) not null unique,
-    password varchar(255) not null,
+    login varchar(50) not null,
+    password varchar(50) not null,
     full_name varchar(255) not null,
-    id_position integer not null,
-    foreign key (id_position) references positions(id_position)
+    id_position integer not null
 );
+comment on table users is 'Пользователи системы';
+comment on column users.id_user is 'Уникальный идентификатор пользователя';
+comment on column users.login is 'Логин для входа в систему';
+comment on column users.password is 'Пароль пользователя';
+comment on column users.full_name is 'ФИО пользователя';
+comment on column users.id_position is 'Код должности пользователя';
 
 -- ddl packs
-create table packs (
+create table packs(
     id_pack integer primary key,
     name_pack varchar(255) not null,
     created_at timestamp not null,
     id_user integer not null,
-    id_equipment_type integer not null,
-    id_parameter integer not null,
-    param_value numeric not null,
-    foreign key (id_user) references users(id_user),
-    foreign key (id_equipment_type) references type_equipment(id_equipment_type),
-    foreign key (id_parameter) references parameters(id_parameter)
+	id_position integer not null,
+    id_equipment_type integer not null
 );
+comment on table packs is 'Пачки измерений - наборы параметров для оборудования';
+comment on column packs.id_pack is 'Уникальный код пачки';
+comment on column packs.name_pack is 'Название пачки';
+comment on column packs.created_at is 'Дата и время создания';
+comment on column packs.id_user is 'Код пользователя, создавшего пачку';
+comment on column packs.id_position is 'Код должности пользователя';
+comment on column packs.id_equipment_type is 'Код типа оборудования';
 
 -- dml type_equipment
 insert into type_equipment (id_equipment_type, name_equipment_type) values (1, 'ДМК');
@@ -60,12 +77,17 @@ insert into positions (id_position, name_position) values (2, 'Метеорол�
 insert into positions (id_position, name_position) values (3, 'Начальник расчёта');
 
 -- dml parameters
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (1, 'Высота метеопоста', 'м', null, null, 100);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (2, 'Температура', '°C', -58, 58, 15);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (3, 'Давление', 'мм рт. ст.', 500, 900, 750);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (4, 'Направление ветра', 'деления угломера', 0, 59, 0);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (5, 'Скорость ветра', 'м/с', 0, 15, 0);
-insert into parameters (id_parameter, name_parameter, unit, min_value, max_value, default_value) values (6, 'Дальность сноса пуль', 'м', 0, 150, 0);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (1, 'Высота метеопоста', 1, 100);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (2, 'Температура', 1, 15.0);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (3, 'Давление', 1, 750);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (4, 'Направление ветра', 1, 0);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (5, 'Скорость ветра', 1, 5);
+
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (6, 'Высота метеопоста', 2, 500);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (7, 'Температура', 2, 20.0);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (8, 'Давление', 2, 765);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (9, 'Направление ветра', 2, 15);
+insert into parameters (id_parameter, name_parameter, id_packs, param_value) values (10, 'Дальность сноса пуль', 2, 120);
 
 -- dml users
 insert into users (id_user, login, password, full_name, id_position) values (1, 'ivanov', 'pass123', 'Иванов Иван Иванович', 1);
@@ -73,80 +95,11 @@ insert into users (id_user, login, password, full_name, id_position) values (2, 
 insert into users (id_user, login, password, full_name, id_position) values (3, 'sidorov', 'pass789', 'Сидоров Алексей Алексеевич', 3);
 
 -- dml packs
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (1, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 1, 100);
+insert into packs (id_pack, name_pack, created_at, id_user, id_position, id_equipment_type) 
+values (1, 'Измерение ДМК', '2026-09-19 10:30:00', 1, 1, 1);
 
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (2, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 2, 15.0);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (3, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 3, 750);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (4, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 4, 0);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (5, 'Измерение №1', '2026-09-19 10:30:00', 1, 1, 5, 5);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (6, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 1, 500);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (7, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 2, 20.0);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (8, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 3, 765);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (9, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 4, 15);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (10, 'Измерение №2', '2026-09-19 11:15:00', 2, 1, 5, 8);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (11, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 1, 1000);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (12, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 2, 10.0);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (13, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 3, 740);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (14, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 4, 25);
-
-insert into packs (
-    id_pack, name_pack, created_at, id_user, id_equipment_type,
-    id_parameter, param_value
-) values (15, 'Измерение №3', '2026-09-19 12:00:00', 3, 2, 6, 120);
+insert into packs (id_pack, name_pack, created_at, id_user, id_position, id_equipment_type) 
+values (2, 'Измерение ВР', '2026-09-19 11:15:00', 2, 2, 2);
 
 -- select
 select
@@ -158,13 +111,14 @@ select
     te.name_equipment_type,
     par.id_parameter,
     par.name_parameter,
-    p.param_value
-from packs as p
-join users as u
-    on p.id_user = u.id_user
-join positions as pos
-    on u.id_position = pos.id_position
-join type_equipment as te
-    on p.id_equipment_type = te.id_equipment_type
-join parameters as par
-    on p.id_parameter = par.id_parameter;
+    par.param_value
+from packs as p,
+     users as u,
+     positions as pos,
+     type_equipment as te,
+     parameters as par
+where p.id_user = u.id_user
+  and u.id_position = pos.id_position
+  and p.id_equipment_type = te.id_equipment_type
+  and p.id_pack = par.id_packs
+order by p.id_pack, par.id_parameter;
