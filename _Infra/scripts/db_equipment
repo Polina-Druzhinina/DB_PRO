@@ -10,7 +10,7 @@ create table type_equipment(
     name_equipment_type varchar(50) not null 
 );
 comment on table type_equipment is 'Справочник типов оборудования';
-comment on column type_equipment.id_equipment_type is 'Уникальный идентификатор типа оборудования';
+comment on column type_equipment.id_equipment_type is 'Уникальный код типа оборудования';
 comment on column type_equipment.name_equipment_type is 'Название типа оборудования';
 
 -- ddl positions
@@ -30,8 +30,8 @@ create table parameters (
 	param_value numeric not null
 );
 comment on table parameters is 'Параметры измерений, входящие в состав пачек';
-comment on column parameters.id_parameter is 'Уникальный идентификатор параметра';
-comment on column parameters.name_parameter is 'Название параметра (температура, давление и т.д.)';
+comment on column parameters.id_parameter is 'Уникальный код параметра';
+comment on column parameters.name_parameter is 'Название параметра (температура, давление и тд)';
 comment on column parameters.id_packs is 'Код пачки, к которой принадлежит параметр';
 comment on column parameters.param_value is 'Числовое значение параметра';
 
@@ -44,7 +44,7 @@ create table users (
     id_position integer not null
 );
 comment on table users is 'Пользователи системы';
-comment on column users.id_user is 'Уникальный идентификатор пользователя';
+comment on column users.id_user is 'Уникальный код пользователя';
 comment on column users.login is 'Логин для входа в систему';
 comment on column users.password is 'Пароль пользователя';
 comment on column users.full_name is 'ФИО пользователя';
