@@ -9,6 +9,11 @@ create table base_units_of_measurement(
 	symbol_base varchar(15) not null
 );
 
+comment on table base_units_of_measurement is 'Справочник базовых единиц измерений';
+comment on column base_units_of_measurement.id_base_units_of_measurement is 'Уникальный код базовой единицы';
+comment on column base_units_of_measurement.name_base_unit_of_measurement is 'Наименование базовой величины';
+comment on column base_units_of_measurement.symbol_base is 'Базовое обозначение';
+
 --dml заполнение базовых единиц измерения 
 insert into base_units_of_measurement (id_base_units_of_measurement, name_base_unit_of_measurement, symbol_base) values
 (1, 'Длина', 'м'),
@@ -25,6 +30,13 @@ create table units_of_measurement(
 	conversion_factor decimal(18, 6) not null default 1.0,
 	id_base_unit integer not null
 );
+
+comment on table units_of_measurement is 'Справочник единиц измерения';
+comment on column units_of_measurement.id_unit_of_measurement is 'Уникальный код единицы измерения';
+comment on column units_of_measurement.name_unit_of_measurement is 'Полное наименование единицы измерения';
+comment on column units_of_measurement.symbol is 'Обозначение единицы';
+comment on column units_of_measurement.conversion_factor is 'Коэффициент пересчета относительно базовой единицы';
+comment on column units_of_measurement.id_base_unit is 'Ссылка на базовую единицу измерения';
 
 --dml единиц измерения
 insert into units_of_measurement (id_unit_of_measurement, name_unit_of_measurement, symbol, conversion_factor, id_base_unit) values
@@ -43,6 +55,13 @@ create table type_parameters(
 	max_value numeric
 );
 
+comment on table type_parameters is 'Справочник типов параметров';
+comment on column type_parameters.id_type_parameter is 'Уникальный код типа параметра';
+comment on column type_parameters.name_type_parameter is 'Наименование параметра';
+comment on column type_parameters.id_unit is 'Ссылка на единицу измерения';
+comment on column type_parameters.min_value is 'Минимальное значение';
+comment on column type_parameters.max_value is 'Максимальное значение';
+
 --dml заполнение типо параметров
 insert into type_parameters (id_type_parameter, name_type_parameter, id_unit, min_value, max_value) values
 (1, 'Высота метеопоста', 1, null, null),
@@ -54,14 +73,18 @@ insert into type_parameters (id_type_parameter, name_type_parameter, id_unit, mi
 
 alter table parameters drop column if exists name_parameter;
 alter table parameters add column if not exists id_type_parameter integer;
+comment on column parameters.id_type_parameter is 'Ссылка на тип параметра';
 
 alter table type_equipment drop column if exists name_equipment_type;
 alter table type_equipment add column if not exists short_name_equipment varchar(20);
 alter table type_equipment add column if not exists description_equipment varchar(255);
+comment on column type_equipment.short_name_equipment is 'Короткое наименование оборудования';
+comment on column type_equipment.description_equipment is 'Описание оборудования';
 
 alter table users drop column if exists login;
 alter table users drop column if exists password;
 alter table users add column if not exists birthday timestamp;
+comment on column users.birthday is 'Дата рождения пользователя';
 
 alter table packs drop column if exists name_pack;
 alter table packs drop column if exists id_position;
