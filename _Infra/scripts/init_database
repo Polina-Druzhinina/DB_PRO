@@ -1,0 +1,108 @@
+drop table if exists type_parameters;
+drop table if exists units_of_measurement;
+drop table if exists base_units_of_measurement;
+
+--ddl units_of_measurement
+create table base_units_of_measurement(
+	id_base_units_of_measurement integer primary key,
+	name_base_unit_of_measurement varchar(100) not null,
+	symbol_base varchar(15) not null
+);
+
+--dml заполнение базовых единиц измерения 
+insert into base_units_of_measurement (id_base_units_of_measurement, name_base_unit_of_measurement, symbol_base) values
+(1, 'Длина', 'м'),
+(2, 'Температура', '°c'),
+(3, 'Давление', 'мм рт. ст.'),
+(4, 'Скорость', 'м/с'),
+(5, 'Угол', 'д.у.');
+
+--ddl units_of_measurement
+create table units_of_measurement(
+	id_unit_of_measurement integer primary key,
+	name_unit_of_measurement varchar(100) not null,
+	symbol varchar(15) not null,
+	conversion_factor decimal(18, 6) not null default 1.0,
+	id_base_unit integer not null
+);
+
+--dml единиц измерения
+insert into units_of_measurement (id_unit_of_measurement, name_unit_of_measurement, symbol, conversion_factor, id_base_unit) values
+(1, 'Метр', 'м', 1.000000, 1),
+(2, 'Градус цельсия', '°c', 1.000000, 2),
+(3, 'Миллиметр ртутного столба', 'мм рт. ст.', 1.000000, 3),
+(4, 'Метр в секунду', 'м/с', 1.000000, 4),
+(5, 'Деление угломера', 'д.у.', 1.000000, 5);
+
+--ddl type_parameters 
+create table type_parameters(
+	id_type_parameter integer primary key,
+	name_type_parameter varchar(100) not null,
+	id_unit integer not null,
+	min_value numeric,
+	max_value numeric
+);
+
+--dml заполнение типо параметров
+insert into type_parameters (id_type_parameter, name_type_parameter, id_unit, min_value, max_value) values
+(1, 'Высота метеопоста', 1, null, null),
+(2, 'Температура воздуха', 2, -58, 58),
+(3, 'Атмосферное давление', 3, 500, 900),
+(4, 'Направление ветра', 5, 0, 59),
+(5, 'Скорость ветра', 4, 0, 15),
+(6, 'Дальность сноса пуль', 1, 0, 150);
+
+alter table parameters drop column if exists name_parameter;
+alter table parameters add column if not exists id_type_parameter integer;
+
+alter table type_equipment drop column if exists name_equipment_type;
+alter table type_equipment add column if not exists short_name_equipment varchar(20);
+alter table type_equipment add column if not exists description_equipment varchar(255);
+
+alter table users drop column if exists login;
+alter table users drop column if exists password;
+alter table users add column if not exists birthday timestamp;
+
+alter table packs drop column if exists name_pack;
+alter table packs drop column if exists id_position;
+
+update parameters set id_type_parameter = 1 where id_parameter in (1, 6);
+update parameters set id_type_parameter = 2 where id_parameter in (2, 7);
+update parameters set id_type_parameter = 3 where id_parameter in (3, 8);
+update parameters set id_type_parameter = 4 where id_parameter in (4, 9);
+update parameters set id_type_parameter = 5 where id_parameter = 5;
+update parameters set id_type_parameter = 6 where id_parameter = 10;
+
+update type_equipment 
+set short_name_equipment = 'дмк', 
+    description_equipment = 'десантный метеокомплект' 
+where id_equipment_type = 1;
+
+update type_equipment 
+set short_name_equipment = 'вр', 
+    description_equipment = 'ветровое ружье' 
+where id_equipment_type = 2;
+
+update users set birthday = '1990-05-15 00:00:00' where id_user = 1;
+update users set birthday = '1985-08-20 00:00:00' where id_user = 2;
+update users set birthday = '1978-12-01 00:00:00' where id_user = 3;
+
+select
+    p.created_at,
+    p.id_pack,
+    u.full_name,
+    tp.name_type_parameter || ' (' || um.symbol || ')',
+    par.param_value
+from 
+    packs as p,
+    users as u,
+    type_equipment as te,
+    parameters as par,
+    type_parameters as tp,
+    units_of_measurement as um
+where p.id_user = u.id_user
+  and p.id_equipment_type = te.id_equipment_type
+  and p.id_pack = par.id_packs
+  and par.id_type_parameter = tp.id_type_parameter
+  and tp.id_unit = um.id_unit_of_measurement
+order by p.id_pack, par.id_parameter;
