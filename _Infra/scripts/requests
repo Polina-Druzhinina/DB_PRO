@@ -1,26 +1,20 @@
 -- вопрос 1 (Каждый пользователь имеет одинаковое количество измерений?)
--- я не поняла, что имеется в виду под измерениями: параметры или пачки, поэтому сделала 2 запроса
-
 --параметры
-select u.full_name, count(tp.name_type_parameter)
+select u.full_name, count(par.id_parameter) 
 from users as u
-inner join packs as p on p.id_user = u.id_user
-inner join parameters as par on par.id_packs = p.id_pack
-inner join type_parameters as tp on tp.id_type_parameter = par.id_type_parameter
+left join packs as p on p.id_user = u.id_user
+left join parameters as par on par.id_packs = p.id_pack
 group by u.full_name
-
---пачки
-select u.full_name, count(*)
-from users as u
-inner join packs as p on p.id_user = u.id_user
-group by u.full_name
--- вывод: у 1 пользователя есть 2 измерения
+--вывод: есть пользователь, который не делал измерения, и пользователь, который сделал 2 измерения
 
 --вопрос 2 (нет пустых пачек измерения?)
 select p.id_pack
 from packs as p
-left join parameters as par on p.id_pack = par.id_packs
-where par.id_parameter is null;
+where (
+    select count(*) 
+    from parameters as par 
+    where par.id_packs = p.id_pack
+) = 0;
 -- вывод: нет пустых пачек
 
 --вопрос 3 (Каждая пачка измерений содержит полное количество параметров (5 шт)?)
@@ -46,7 +40,14 @@ order by u.full_name, tp.name_type_parameter;
 -- вывод: нет таких параметров, которые не соответсвуют
 
 --вопрос 5 (все единицы измерения верны и корректны по отношению к указанным параметрам?)
-select tp.name_type_parameter, um.name_unit_of_measurement, um.symbol
+select 
+    tp.id_type_parameter,
+    tp.name_type_parameter,
+    um.id_unit_of_measurement,
+    um.name_unit_of_measurement,
+    bu.id_base_units_of_measurement
 from type_parameters as tp
-inner join units_of_measurement as um on tp.id_unit = um.id_unit_of_measurement;
+inner join units_of_measurement as um on tp.id_unit = um.id_unit_of_measurement
+left join base_units_of_measurement as bu on um.id_base_unit = bu.id_base_units_of_measurement
+where bu.id_base_units_of_measurement is null;
 --вывод: все верны
