@@ -1,0 +1,161 @@
+-- шаг 1: создание структуры таблиц и счетчиков
+do $$ 
+begin
+    -- удаление 
+    drop table if exists parameters cascade;
+    drop table if exists packs cascade;
+    drop table if exists type_parameters cascade;
+    drop table if exists users cascade;
+    drop table if exists units cascade;
+    drop table if exists type_equipment cascade;
+    drop table if exists positions cascade;
+    drop table if exists base_units cascade;
+
+    drop sequence if exists parameters_id_seq;
+    drop sequence if exists packs_id_seq;
+    drop sequence if exists type_parameters_id_seq;
+    drop sequence if exists users_id_seq;
+    drop sequence if exists units_id_seq;
+    drop sequence if exists type_equipment_id_seq;
+    drop sequence if exists positions_id_seq;
+    drop sequence if exists base_units_id_seq;
+
+    -- создание счетчиков
+    create sequence base_units_id_seq;
+    create sequence positions_id_seq;
+    create sequence type_equipment_id_seq;
+    create sequence units_id_seq;
+    create sequence users_id_seq;
+    create sequence type_parameters_id_seq;
+    create sequence packs_id_seq;
+    create sequence parameters_id_seq;
+
+    -- инициализация таблиц
+    create table base_units (
+        id integer primary key default nextval('base_units_id_seq'),
+        name varchar(100) not null,
+        symbol varchar(15) not null
+    );
+
+    create table positions (
+        id integer primary key default nextval('positions_id_seq'),
+        name varchar(100) not null
+    );
+
+    create table type_equipment (
+        id integer primary key default nextval('type_equipment_id_seq'),
+        short_name varchar(15) not null,
+        description varchar(255) not null
+    );
+
+    create table units (
+        id integer primary key default nextval('units_id_seq'),
+        name varchar(100) not null,
+        symbol varchar(15) not null,
+        conversion_factor decimal(18,6) not null,
+        id_base_unit integer not null
+    );
+
+    create table users (
+        id integer primary key default nextval('users_id_seq'),
+        full_name varchar(255) not null,
+        id_position integer not null,
+        birthday timestamp
+    );
+
+    create table type_parameters (
+        id integer primary key default nextval('type_parameters_id_seq'),
+        name varchar(100) not null,
+        id_unit integer not null,
+        min_value numeric,
+        max_value numeric 
+    );
+
+    create table packs (
+        id integer primary key default nextval('packs_id_seq'),
+        created_at timestamp not null,
+        id_user integer not null,
+        id_equipment_type integer not null
+    );
+
+    create table parameters (
+        id integer primary key default nextval('parameters_id_seq'),
+        id_pack integer not null,
+        id_type_parameter integer not null,
+        param_value numeric not null
+    );
+
+    create table temperature_corrections (
+        id integer primary key default nextval('temperature_corrections_id_seq'),
+        t0_min numeric,
+        t0_max numeric,
+        delta_tv numeric not null
+    );
+end $$;
+
+-- шаг 2: наполнение тестовыми данными
+do $$ 
+begin
+    insert into base_units (name, symbol) values 
+        ('Длина', 'м'), ('Температура', '°C'), ('Давление', 'мм рт. ст.'), ('Скорость', 'м/с'), ('Угол', 'д.у.');
+
+    insert into positions (name) values 
+        ('Оператор'), ('Метеоролог'), ('Начальник расчёта'), ('Инженер-синоптик'), ('Техник'), ('Старший оператор');
+
+    insert into type_equipment (short_name, description) values 
+        ('ДМК', 'Десантный метеокомплект'), ('ВР', 'Ветровое ружьё');
+
+    insert into units (name, symbol, conversion_factor, id_base_unit) values 
+        ('Метр', 'м', 1.000000, 1), ('Градус Цельсия', '°C', 1.000000, 2), 
+        ('Миллиметр ртутного столба', 'мм рт. ст.', 1.000000, 3), ('Метр в секунду', 'м/с', 1.000000, 4), ('Деление угломера', 'д.у.', 1.000000, 5);
+
+    insert into users (full_name, id_position, birthday) values 
+        ('Иванов Иван Иванович', 1, '1990-05-15 00:00:00'), ('Петров Пётр Петрович', 2, '1985-08-20 00:00:00'),
+        ('Сидоров Алексей Алексеевич', 3, '1978-12-01 00:00:00'), ('Козлов Дмитрий Сергеевич', 4, '1992-03-10 00:00:00'),
+        ('Новикова Елена Владимировна', 5, '1995-07-22 00:00:00'), ('Морозов Андрей Николаевич', 6, '1988-11-05 00:00:00'),
+        ('Волкова Мария Андреевна', 2, '1993-02-14 00:00:00'), ('Соколов Владимир Иванович', 1, '1991-09-30 00:00:00');
+
+    insert into type_parameters (name, id_unit, min_value, max_value) values 
+        ('Высота метеопоста', 1, null, null), ('Температура воздуха', 2, -58, 58),
+        ('Атмосферное давление', 3, 500, 900), ('Направление ветра', 5, 0, 59),
+        ('Скорость ветра', 4, 0, 15), ('Дальность сноса пуль', 1, 0, 150);
+
+    insert into packs (created_at, id_user, id_equipment_type) values 
+        ('2026-09-19 10:30:00', 1, 1), ('2026-09-19 11:15:00', 2, 2),
+        ('2026-09-20 08:00:00', 3, 1), ('2026-09-20 14:30:00', 4, 2),
+        ('2026-09-21 09:45:00', 5, 1), ('2026-09-21 16:20:00', 6, 2),
+        ('2026-09-22 07:30:00', 7, 1), ('2026-09-22 13:00:00', 8, 2),
+        ('2026-09-23 10:15:00', 1, 1), ('2026-09-23 15:45:00', 2, 2);
+
+    insert into parameters (id_pack, id_type_parameter, param_value) values 
+        (1, 1, 100), (1, 2, 15.0), (1, 3, 750), (1, 4, 0), (1, 5, 5),
+        (2, 1, 500), (2, 2, 20.0), (2, 3, 765), (2, 4, 15), (2, 6, 120),
+        (3, 1, 150), (3, 2, 12.5), (3, 3, 748), (3, 4, 10), (3, 5, 8),
+        (4, 1, 450), (4, 2, 18.0), (4, 3, 760), (4, 4, 20), (4, 6, 135),
+        (5, 1, 120), (5, 2, 14.0), (5, 3, 752), (5, 4, 5), (5, 5, 3),
+        (6, 1, 480), (6, 2, 22.0), (6, 3, 758), (6, 4, 25), (6, 6, 110),
+        (7, 1, 110), (7, 2, 16.5), (7, 3, 755), (7, 4, 8), (7, 5, 6),
+        (8, 1, 520), (8, 2, 19.0), (8, 3, 762), (8, 4, 12), (8, 6, 125),
+        (9, 1, 130), (9, 2, 13.0), (9, 3, 749), (9, 4, 3), (9, 5, 4),
+        (10, 1, 490), (10, 2, 21.0), (10, 3, 763), (10, 4, 18), (10, 6, 140);
+
+    insert into temperature_corrections (t0_min, t0_max, delta_tv) values 
+        (null, 0, 0), (0, 5, 0.5), (10, 15, 1), (20, 20, 1.5), (25, 25, 2), (30, 30, 3.5), (40, 40, 4.5);
+end $$;
+
+-- шаг 3: создание связей и ограничений
+do $$ 
+begin
+    -- связи между таблицами (foreign key)
+    alter table units add constraint fk_units_base foreign key (id_base_unit) references base_units(id);
+    alter table users add constraint fk_users_position foreign key (id_position) references positions(id);
+    alter table type_parameters add constraint fk_type_params_unit foreign key (id_unit) references units(id);
+    alter table packs add constraint fk_packs_user foreign key (id_user) references users(id);
+    alter table packs add constraint fk_packs_equipment foreign key (id_equipment_type) references type_equipment(id);
+    alter table parameters add constraint fk_parameters_pack foreign key (id_pack) references packs(id);
+    alter table parameters add constraint fk_parameters_type foreign key (id_type_parameter) references type_parameters(id);
+
+    -- простые ограничения (check)
+    alter table units add constraint chk_conversion_factor check (conversion_factor > 0);
+    alter table type_parameters add constraint chk_min_max check (min_value is null or max_value is null or min_value < max_value);
+end $$;
