@@ -1,9 +1,26 @@
--- 2 скрипт
 select 
-    row_number() over (order by table_name) as "№",
-    table_name as "наименование",
-    'таблица' as "тип"
-from information_schema.tables
-where table_schema = 'public' 
-  and table_type = 'BASE TABLE' 
-order by table_name;
+    row_number() over (order by "тип", "наименование") as "№",
+    "наименование",
+    "тип"
+from (
+    -- таблицы
+    select table_name as "наименование", 'таблица' as "тип"
+    from information_schema.tables
+    where table_schema = 'public' 
+      and table_type = 'BASE TABLE'
+      and table_name in (
+          'base_units', 'positions', 'type_equipment', 'units', 'users',
+          'type_parameters', 'packs', 'parameters', 'temperature_corrections'
+      )
+    union all
+    -- последовательности
+    select sequence_name as "наименование", 'последовательность' as "тип"
+    from information_schema.sequences
+    where sequence_schema = 'public'
+      and sequence_name in (
+          'base_units_id_seq', 'positions_id_seq', 'type_equipment_id_seq',
+          'units_id_seq', 'users_id_seq', 'type_parameters_id_seq',
+          'packs_id_seq', 'parameters_id_seq', 'temperature_corrections_id_seq'
+      )
+) as all_objects
+order by "тип", "наименование";
