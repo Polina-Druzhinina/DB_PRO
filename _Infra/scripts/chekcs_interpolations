@@ -1,0 +1,59 @@
+drop table if exists test_results;
+
+do
+$test$
+declare
+    t numeric;
+    pts public.interpolation;
+    status text;
+begin
+    create temp table test_results (
+        t numeric,
+        x0 numeric, y0 numeric,
+        x1 numeric, y1 numeric,
+        status text
+    );
+
+    t := 0;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 0.5) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := 10;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 1.0) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := 15;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 1.0) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := 25;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 2.0) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := 28;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 2.9) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := 40;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 4.5) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := -5;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 0.5) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+
+    t := 45;
+    pts := get_interpolation_bounds(t);
+    if abs(interpolate(t, pts) - 4.5) < 0.001 then status := 'TRUE'; else status := 'FALSE'; end if;
+    insert into test_results values (t, pts.x0, pts.y0, pts.x1, pts.y1, status);
+end
+$test$;
+
+select * from test_results order by t;
