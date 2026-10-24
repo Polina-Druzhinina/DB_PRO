@@ -1,0 +1,90 @@
+-- запрос 2 пункта
+with parameter_list as (
+    select
+        p.id as id_pack,
+        p.id_equipment_type,
+        prm.id_type_parameter,
+        prm.param_value,
+        prm.id as id_parameter
+    from public.packs p
+    join public.parameters prm on prm.id_pack = p.id
+),
+pack_parameters as (
+    select
+        id_pack,
+        id_equipment_type,
+        max(case when id_type_parameter = 1 then param_value end) as height,
+        max(case when id_type_parameter = 2 then param_value end) as temperature,
+        max(case when id_type_parameter = 3 then param_value end) as pressure,
+        max(case when id_type_parameter = 4 then param_value end) as wind_direction,
+        max(case when id_type_parameter = 5 then param_value end) as wind_speed,
+        max(case when id_type_parameter = 6 then param_value end) as bullet_drift,
+        array_agg(
+            row(id_type_parameter, param_value)::public.lst_parameter
+        ) as parameters_array
+    from parameter_list
+    group by id_pack, id_equipment_type
+),
+pack_errors as (
+    select
+        pp.id_pack,
+        c.error_count,
+        c.error_description
+    from pack_parameters pp
+    cross join lateral public.check_parameters(
+        pp.parameters_array
+    ) c
+)
+select
+    pp.id_pack as "№",
+    te.short_name as "Тип оборудования",
+    pp.height as "Высота метеопоста",
+    pp.temperature as "Температура",
+    pp.pressure as "Давление",
+    pp.wind_direction as "Направление ветра",
+    pp.wind_speed as "Скорость ветра",
+    pp.bullet_drift as "Дальность сноса пуль",
+    (pe.error_description <> 'Ошибок нет') as "Флаг: Есть ошибка",
+    pe.error_description as "Описание ошибки"
+from pack_parameters pp
+join public.type_equipment te on te.id = pp.id_equipment_type
+join pack_errors pe on pe.id_pack = pp.id_pack
+order by pp.id_pack;
+
+
+--SQL-запрос "Лучший стрелок" (4 пункт)
+with parameter_list as (
+    select
+        p.id as id_pack,
+        p.id_user,
+        prm.id_type_parameter,
+        prm.param_value
+    from public.packs p
+    join public.parameters prm on prm.id_pack = p.id
+),
+pack_parameters as (
+    select
+        id_pack,
+        id_user,
+        array_agg(
+            row(id_type_parameter, param_value)::public.lst_parameter
+        ) as parameters_array
+    from parameter_list
+    group by id_pack, id_user
+),
+pack_errors as (
+    select
+        pp.id_pack,
+        pp.id_user,
+        c.error_count
+    from pack_parameters pp
+    cross join lateral public.check_parameters(
+        pp.parameters_array
+    ) c
+)
+select
+    u.full_name as "Пользователь",
+    sum(pe.error_count) as "Количество ошибок"
+from pack_errors pe
+join public.users u on u.id = pe.id_user
+group by u.id, u.full_name;
