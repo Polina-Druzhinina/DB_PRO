@@ -1,0 +1,65 @@
+-- ДДЧЧМ
+create or replace function calculate_ddchm(p_id_pack integer)
+returns text as
+$$
+declare
+    var_time timestamp;
+begin
+    select created_at into var_time
+    from public.packs
+    where id = p_id_pack;
+
+    if not found then
+        raise exception 'Пачка не найдена';
+    end if;
+
+    return to_char(var_time, 'DDHH')
+        || floor(extract(minute from var_time) / 10)::integer;
+end;
+$$ language plpgsql;
+
+-- ВВВВ
+create or replace function public.calculate_vvvv(height integer)
+returns text as
+$$
+begin
+    return lpad(height::text, 4, '0');
+end;
+$$ language plpgsql;
+
+-- БББТТ
+create or replace function calculate_bbbtt(
+    pressure numeric,
+    temperature numeric
+)
+returns text as
+$$
+declare
+    points public.interpolation;
+    delta_tv numeric;
+    delta_h integer;
+    delta_t integer;
+begin
+    delta_h := round(pressure - public.get_constant('pressure'));
+
+    points := public.get_interpolation_bounds(temperature);
+    delta_tv := public.interpolate(temperature, points);
+
+    delta_t := round(
+        temperature + delta_tv - public.get_constant('temperature')
+    );
+
+    if delta_h < 0 then
+        delta_h := 500 + abs(delta_h);
+    end if;
+
+    return lpad(delta_h::text, 3, '0')
+        || lpad(delta_t::text, 2, '0');
+end;
+$$ language plpgsql;
+select calculate_ddchm(1);
+
+select calculate_vvvv(60);
+
+select calculate_bbbtt(757, 23);
+
