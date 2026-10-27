@@ -1,0 +1,90 @@
+-- задание 1
+
+-- таблица с ошибками
+drop table if exists parameter_error;
+drop sequence if exists parameters_erroe_id_seq;
+
+create sequence parameters_erroe_id_seq;
+
+create table parameter_error(
+    id integer primary key default nextval('parameters_erroe_id_seq'),
+    id_parameter integer not null,
+    description text not null
+);
+
+comment on table parameter_error is 'Справочник ошибок в параметрах';
+comment on column parameter_error.id is 'Уникальный идентификатор ошибки';
+comment on column parameter_error.id_parameter is 'Идентификатор параметра';
+comment on column parameter_error.description is 'Описание ошибки';
+
+alter table parameter_error
+add constraint fk_parameter_error_parameter
+foreign key (id_parameter) references parameters(id);
+
+
+-- тип lst_parameter
+drop function if exists public.check_parameters(public.lst_parameter[]);
+drop type if exists public.lst_parameter;
+
+create type public.lst_parameter as (
+    id_type_parameter integer,
+    param_value numeric
+);
+
+
+-- функция проверки параметров
+create or replace function public.check_parameters(
+    p_parameters public.lst_parameter[]
+)
+returns text as
+$$
+declare
+    var_parameter public.lst_parameter;
+    var_min numeric;
+    var_max numeric;
+    var_name text;
+    var_errors text := '';
+begin
+    foreach var_parameter in array p_parameters
+    loop
+        select tp.name, tp.min_value, tp.max_value
+        into var_name, var_min, var_max
+        from public.type_parameters tp
+        where tp.id = var_parameter.id_type_parameter;
+
+        if not found then
+            var_errors := concat_ws('; ', nullif(var_errors, ''),
+                'Неизвестный параметр');
+
+        elsif var_min is not null
+              and var_parameter.param_value < var_min then
+            var_errors := concat_ws('; ', nullif(var_errors, ''),
+                var_name || ': значение меньше допустимого минимума');
+
+        elsif var_max is not null
+              and var_parameter.param_value > var_max then
+            var_errors := concat_ws('; ', nullif(var_errors, ''),
+                var_name || ': значение больше допустимого максимума');
+        end if;
+    end loop;
+
+    if var_errors = '' then
+        return 'Ошибок нет';
+    end if;
+
+    return var_errors;
+end;
+$$ language plpgsql;
+
+
+-- добавление данных с ошибками
+insert into packs (created_at, id_user, id_equipment_type)
+values (current_timestamp, 1, 1);
+
+insert into parameters (id_pack, id_type_parameter, param_value)
+values
+    (currval('packs_id_seq'), 1, 100),
+    (currval('packs_id_seq'), 2, 70),
+    (currval('packs_id_seq'), 3, 760),
+    (currval('packs_id_seq'), 4, 30),
+    (currval('packs_id_seq'), 5, 10);

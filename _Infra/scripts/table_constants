@@ -1,0 +1,31 @@
+-- 6 пункт
+drop table if exists meteorological_constants;
+
+create table meteorological_constants (
+    name text primary key,
+    value numeric not null
+);
+
+insert into meteorological_constants (name, value)
+values
+    ('pressure', 750),
+    ('temperature', 15.9);
+
+
+create or replace function public.get_constant(p_name text)
+returns numeric as
+$$
+declare
+    var_value numeric;
+begin
+    select value into var_value
+    from public.meteorological_constants
+    where name = p_name;
+
+    if not found then
+        raise exception 'Константа не найдена';
+    end if;
+
+    return var_value;
+end;
+$$ language plpgsql;
