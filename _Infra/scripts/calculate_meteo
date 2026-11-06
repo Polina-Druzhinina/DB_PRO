@@ -1,7 +1,35 @@
--- ДДЧЧМ
-create or replace function calculate_ddchm(p_id_pack integer)
-returns text as
-$$
+do $$
+begin
+
+drop function if exists public.calculate_bbbtt(numeric, numeric);
+drop function if exists public.calculate_vvvv(integer);
+drop function if exists public.calculate_ddchm(integer);
+drop table if exists constants;
+drop sequence if exists public.seq_constants;
+
+
+create table constants (
+    id integer not null primary key,
+    name varchar(100) not null unique,
+    value numeric not null
+);
+
+create sequence public.seq_constants;
+alter table constants
+    alter column id set default nextval('public.seq_constants');
+
+insert into constants (name, value) values
+('pressure', 750),
+('temperature', 15.9);
+
+
+create or replace function public.calculate_ddchm(
+    p_id_pack integer)
+    returns text
+    language 'plpgsql'
+    cost 100
+    volatile parallel unsafe
+as $body$
 declare
     var_time timestamp;
 begin
@@ -10,43 +38,66 @@ begin
     where id = p_id_pack;
 
     if not found then
-        raise exception 'Пачка не найдена';
+        raise exception 'пачка не найдена';
     end if;
 
     return to_char(var_time, 'DDHH')
         || floor(extract(minute from var_time) / 10)::integer;
 end;
-$$ language plpgsql;
+$body$;
 
--- ВВВВ
-create or replace function public.calculate_vvvv(height integer)
-returns text as
-$$
+alter function public.calculate_ddchm(integer)
+    owner to postgres;
+
+comment on function public.calculate_ddchm(integer)
+    is 'получение текущего системного времени в формате ддччм';
+
+
+create or replace function public.calculate_vvvv(
+    height integer)
+    returns text
+    language 'plpgsql'
+    cost 100
+    volatile parallel unsafe
+as $body$
 begin
     return lpad(height::text, 4, '0');
 end;
-$$ language plpgsql;
+$body$;
 
--- БББТТ
-create or replace function calculate_bbbtt(
+alter function public.calculate_vvvv(integer)
+    owner to postgres;
+
+comment on function public.calculate_vvvv(integer)
+    is 'получение высоты над уровнем моря в формате вввв';
+
+
+create or replace function public.calculate_bbbtt(
     pressure numeric,
-    temperature numeric
-)
-returns text as
-$$
+    temperature numeric)
+    returns text
+    language 'plpgsql'
+    cost 100
+    volatile parallel unsafe
+as $body$
 declare
+    const_press numeric;
+    const_temp numeric;
     points public.interpolation;
     delta_tv numeric;
     delta_h integer;
     delta_t integer;
 begin
-    delta_h := round(pressure - public.get_constant('pressure'));
+    select value into const_press from public.constants where name = 'pressure';
+    select value into const_temp from public.constants where name = 'temperature';
+
+    delta_h := round(pressure - const_press);
 
     points := public.get_interpolation_bounds(temperature);
     delta_tv := public.interpolate(temperature, points);
 
     delta_t := round(
-        temperature + delta_tv - public.get_constant('temperature')
+        temperature + delta_tv - const_temp
     );
 
     if delta_h < 0 then
@@ -56,10 +107,17 @@ begin
     return lpad(delta_h::text, 3, '0')
         || lpad(delta_t::text, 2, '0');
 end;
-$$ language plpgsql;
+$body$;
+
+alter function public.calculate_bbbtt(numeric, numeric)
+    owner to postgres;
+
+comment on function public.calculate_bbbtt(numeric, numeric)
+    is 'получение отклонения давления и температуры в формате бббтт';
+
+
+end $$;
+
 select calculate_ddchm(1);
-
 select calculate_vvvv(60);
-
-select calculate_bbbtt(757, 23);
-
+select calculate_bbbtt(765, 25);

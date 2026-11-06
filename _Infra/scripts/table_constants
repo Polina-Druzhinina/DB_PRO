@@ -13,8 +13,9 @@ values
 
 
 create or replace function public.get_constant(p_name text)
-returns numeric as
-$$
+returns numeric
+language plpgsql
+as $body$
 declare
     var_value numeric;
 begin
@@ -23,9 +24,26 @@ begin
     where name = p_name;
 
     if not found then
-        raise exception 'Константа не найдена';
+        raise exception 'константа не найдена';
     end if;
 
     return var_value;
 end;
-$$ language plpgsql;
+$body$;
+
+
+create or replace function public.get_date()
+returns text
+language plpgsql
+as $body$
+begin
+    return to_char(current_timestamp, 'DDHH')
+        || floor(extract(minute from current_timestamp) / 10)::integer;
+end;
+$body$;
+
+
+select
+    public.get_date(),
+    public.calculate_vvvv(60),
+    public.calculate_bbbtt(765, 25);

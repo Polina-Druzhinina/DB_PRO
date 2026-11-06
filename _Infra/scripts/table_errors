@@ -1,83 +1,86 @@
--- задание 1
-
--- таблица с ошибками
+drop function if exists public.check_parameters(public.lst_parameter[]);
+drop function if exists public.get_lst_parameter(integer);
+drop type if exists public.lst_parameter;
 drop table if exists parameter_error;
-drop sequence if exists parameters_erroe_id_seq;
+drop sequence if exists parameters_error_id_seq;
 
-create sequence parameters_erroe_id_seq;
+create sequence parameters_error_id_seq;
 
-create table parameter_error(
-    id integer primary key default nextval('parameters_erroe_id_seq'),
-    id_parameter integer not null,
-    description text not null
+create table parameter_error (
+    id integer not null primary key,
+    id_type_parameter integer not null,
+    error_text varchar(200) not null
 );
+
+alter table parameter_error
+    alter column id set default nextval('parameters_error_id_seq');
 
 comment on table parameter_error is 'Справочник ошибок в параметрах';
 comment on column parameter_error.id is 'Уникальный идентификатор ошибки';
-comment on column parameter_error.id_parameter is 'Идентификатор параметра';
-comment on column parameter_error.description is 'Описание ошибки';
+comment on column parameter_error.id_type_parameter is 'Идентификатор типа параметра';
+comment on column parameter_error.error_text is 'Текст ошибки';
 
-alter table parameter_error
-add constraint fk_parameter_error_parameter
-foreign key (id_parameter) references parameters(id);
-
-
--- тип lst_parameter
-drop function if exists public.check_parameters(public.lst_parameter[]);
-drop type if exists public.lst_parameter;
+insert into parameter_error (id_type_parameter, error_text) values
+(2, 'Температура вне допустимого диапазона'),
+(3, 'Давление вне допустимого диапазона'),
+(4, 'Направление ветра вне допустимого диапазона'),
+(5, 'Скорость ветра вне допустимого диапазона'),
+(6, 'Дальность сноса пуль вне допустимого диапазона');
 
 create type public.lst_parameter as (
     id_type_parameter integer,
-    param_value numeric
+    min_value numeric,
+    max_value numeric,
+    id_pack integer
 );
 
+comment on type public.lst_parameter is 'Список параметров с допустимым диапазоном и идентификатором пачки';
 
--- функция проверки параметров
-create or replace function public.check_parameters(
-    p_parameters public.lst_parameter[]
+create or replace function public.get_lst_parameter(
+    p_id_pack integer
 )
-returns text as
-$$
-declare
-    var_parameter public.lst_parameter;
-    var_min numeric;
-    var_max numeric;
-    var_name text;
-    var_errors text := '';
+returns lst_parameter[]
+language plpgsql
+as $body$
 begin
-    foreach var_parameter in array p_parameters
-    loop
-        select tp.name, tp.min_value, tp.max_value
-        into var_name, var_min, var_max
+    return array(
+        select row(tp.id, tp.min_value, tp.max_value, p_id_pack)::public.lst_parameter
         from public.type_parameters tp
-        where tp.id = var_parameter.id_type_parameter;
-
-        if not found then
-            var_errors := concat_ws('; ', nullif(var_errors, ''),
-                'Неизвестный параметр');
-
-        elsif var_min is not null
-              and var_parameter.param_value < var_min then
-            var_errors := concat_ws('; ', nullif(var_errors, ''),
-                var_name || ': значение меньше допустимого минимума');
-
-        elsif var_max is not null
-              and var_parameter.param_value > var_max then
-            var_errors := concat_ws('; ', nullif(var_errors, ''),
-                var_name || ': значение больше допустимого максимума');
-        end if;
-    end loop;
-
-    if var_errors = '' then
-        return 'Ошибок нет';
-    end if;
-
-    return var_errors;
+        order by tp.id
+    );
 end;
-$$ language plpgsql;
+$body$;
 
+comment on function public.get_lst_parameter(integer) is 'Формирует и возвращает список параметров с допустимыми диапазонами для указанной пачки';
 
--- добавление данных с ошибками
+create or replace function public.check_parameters(
+    p_parameters public.lst_parameter[],
+    out has_error boolean,
+    out error_num integer,
+    out error_text text
+)
+returns record
+language plpgsql
+as $body$
+begin
+    select
+        count(prm.id) > 0,
+        count(prm.id),
+        coalesce(string_agg(distinct err.error_text, '; '), 'Ошибок нет')
+    into has_error, error_num, error_text
+    from public.parameters as prm
+    join unnest(p_parameters) as pl
+        on pl.id_type_parameter = prm.id_type_parameter
+        and pl.id_pack = prm.id_pack
+    left join public.parameter_error as err
+        on err.id_type_parameter = prm.id_type_parameter
+    where prm.param_value < pl.min_value
+       or prm.param_value > pl.max_value;
+end;
+$body$;
+
+comment on function public.check_parameters(public.lst_parameter[]) is 'Проверка значений parameters из пачки на наличие ошибок диапазона';
+
 insert into packs (created_at, id_user, id_equipment_type)
 values (current_timestamp, 1, 1);
 
