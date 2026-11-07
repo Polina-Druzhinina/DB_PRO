@@ -1,0 +1,58 @@
+do $$
+begin
+	drop table if exists avg_wind_speed_vr;
+	drop table if exists avg_wind_speed_dmk;
+	drop table if exists avg_temperature_deviation;
+
+	-- Таблица 2
+	create table avg_temperature_deviation (
+		y_m integer not null,
+		dtau0 integer not null,
+		deviation_neg integer not null,
+		deviation_pos integer,
+		primary key (y_m, dtau0)
+	);
+	comment on table avg_temperature_deviation is 'Средние отклонения температуры воздуха';
+	comment on column avg_temperature_deviation.y_m is 'Стандартная высота Y, м';
+	comment on column avg_temperature_deviation.dtau0 is 'Отклонение приземной виртуальной температуры от табличного значения, градус Цельсия';
+	comment on column avg_temperature_deviation.deviation_neg is 'Среднее отклонение  (числитель)';
+	comment on column avg_temperature_deviation.deviation_pos is 'Среднее отклонение (знаменатель), null - прочерк';
+
+	-- Таблица 3 для ВР
+	create table avg_wind_speed_vr (
+		id_equipment_type integer not null,
+		y_m integer not null,
+		dg_m integer not null,
+		wind_speed integer not null,
+		delta_alpha varchar(5) not null,
+		primary key (id_equipment_type, y_m, dg_m)
+	);
+	comment on table avg_wind_speed_vr is 'Скорость среднего ветра по высоте и дальности сноса ветровых пуль';
+	comment on column avg_wind_speed_vr.id_equipment_type is 'Ссылка на тип оборудования';
+	comment on column avg_wind_speed_vr.y_m is 'Стандартная высота Y, м';
+	comment on column avg_wind_speed_vr.dg_m is 'Дальность сноса ветровых пуль Дг, м';
+	comment on column avg_wind_speed_vr.wind_speed is 'Скорость среднего ветра, м/с';
+	comment on column avg_wind_speed_vr.delta_alpha is 'Дирекционный угол';
+
+	-- Таблица 3 для ДМК
+	create table avg_wind_speed_dmk (
+		id_equipment_type integer not null,
+		y_m integer not null,
+		v0_ms integer not null,
+		wind_speed integer not null,
+		delta_alpha varchar(5) not null,
+		primary key (id_equipment_type, y_m, v0_ms)
+	);
+	comment on table avg_wind_speed_dmk is 'Скорость среднего ветра по высоте и скорости приземного ветра';
+	comment on column avg_wind_speed_dmk.id_equipment_type is 'Ссылка на тип оборудования';
+	comment on column avg_wind_speed_dmk.y_m is 'Стандартная высота Y, м';
+	comment on column avg_wind_speed_dmk.v0_ms is 'Скорость приземного ветра V0, м/с';
+	comment on column avg_wind_speed_dmk.wind_speed is 'Скорость среднего ветра, м/с';
+	comment on column avg_wind_speed_dmk.delta_alpha is 'Дирекционный угол';
+
+	alter table avg_wind_speed_vr add constraint fk_avg_wind_speed_vr_equipment
+		foreign key (id_equipment_type) references type_equipment(id);
+
+	alter table avg_wind_speed_dmk add constraint fk_avg_wind_speed_dmk_equipment
+		foreign key (id_equipment_type) references type_equipment(id);
+end $$;
