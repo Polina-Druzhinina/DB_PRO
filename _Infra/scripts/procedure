@@ -1,15 +1,9 @@
 do $$
 begin
-    drop function if exists public.calculate_meteo_bulletin(public.lst_parameter[], integer);
-    create or replace function public.calculate_meteo_bulletin(
+    drop procedure if exists public.calculate_meteo_bulletin_proc(public.lst_parameter[], integer);
+    create or replace procedure public.calculate_meteo_bulletin_proc(
         p_params public.lst_parameter[],
         p_equip_id integer
-    )
-    returns table (
-        h  integer,
-        tt integer,
-        hh integer,
-        cc integer
     )
     language plpgsql
     as $body$
@@ -45,8 +39,18 @@ begin
         v_delta_tv := public.get_temperature_interpolation(v_temp);
         v_t0_virt := v_temp + v_delta_tv;
         v_delta_t0 := round(v_t0_virt - v_const_t)::integer;
-        -- Возврашаю таблицу результатов по всем высотам
-        return query
+        
+        drop table if exists tmp_bulletin;
+        
+        create temp table tmp_bulletin (
+            h integer,
+            tt integer,
+            hh integer,
+            cc integer
+        );
+        
+        -- Заполняю таблицу результатов по всем высотам
+        insert into tmp_bulletin
         select
             h.height as h,
             case when v_delta_t0 < 0 then
@@ -90,6 +94,6 @@ begin
         order by h.id;
     end;
     $body$;
-    comment on function public.calculate_meteo_bulletin(public.lst_parameter[], integer)
+    comment on procedure public.calculate_meteo_bulletin_proc(public.lst_parameter[], integer)
         is 'Расчёт метеобюллетеня: H, TT, HH, CC по всем высотам из таблицы';
 end $$;
