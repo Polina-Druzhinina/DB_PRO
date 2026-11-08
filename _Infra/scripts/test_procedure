@@ -10,10 +10,11 @@ values
     (currval('packs_id_seq'), 4, 30),
     (currval('packs_id_seq'), 5, 8);
 
-select * from public.calculate_meteo_bulletin(
+call public.calculate_meteo_bulletin_proc(
     public.get_lst_parameter(currval('packs_id_seq')::integer),
     1
 );
+select * from tmp_bulletin;
 
 --тест 
 insert into packs (created_at, id_user, id_equipment_type)
@@ -27,11 +28,11 @@ values
     (currval('packs_id_seq'), 4, 10),
     (currval('packs_id_seq'), 5, 5);
 
-
-select * from public.calculate_meteo_bulletin(
+call public.calculate_meteo_bulletin_proc(
     public.get_lst_parameter(currval('packs_id_seq')::integer),
     1
 );
+select * from tmp_bulletin;
 
 --тест
 insert into packs (created_at, id_user, id_equipment_type)
@@ -45,12 +46,11 @@ values
     (currval('packs_id_seq'), 4, 15),
     (currval('packs_id_seq'), 5, 6);
 
-
-select * from public.calculate_meteo_bulletin(
+call public.calculate_meteo_bulletin_proc(
     public.get_lst_parameter(currval('packs_id_seq')::integer),
     1
 );
-
+select * from tmp_bulletin;
 
 --тест
 insert into packs (created_at, id_user, id_equipment_type)
@@ -64,8 +64,8 @@ values
     (currval('packs_id_seq'), 4, 20),
     (currval('packs_id_seq'), 6, 75);
 
-select * from public.calculate_meteo_bulletin(
+call public.calculate_meteo_bulletin_proc(
     public.get_lst_parameter(currval('packs_id_seq')::integer),
     2
 );
-
+select * from tmp_bulletin;
