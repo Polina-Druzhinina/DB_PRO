@@ -1,0 +1,71 @@
+--тест
+insert into packs (created_at, id_user, id_equipment_type)
+values ('2026-09-24 09:30:00', 1, 1);
+
+insert into parameters (id_pack, id_type_parameter, param_value)
+values
+    (currval('packs_id_seq'), 1, 100),
+    (currval('packs_id_seq'), 2, 3),
+    (currval('packs_id_seq'), 3, 757),
+    (currval('packs_id_seq'), 4, 30),
+    (currval('packs_id_seq'), 5, 8);
+
+select * from public.calculate_meteo_bulletin(
+    public.get_lst_parameter(currval('packs_id_seq')::integer),
+    1
+);
+
+--тест 
+insert into packs (created_at, id_user, id_equipment_type)
+values ('2026-09-25 10:00:00', 2, 1);
+
+insert into parameters (id_pack, id_type_parameter, param_value)
+values
+    (currval('packs_id_seq'), 1, 100),
+    (currval('packs_id_seq'), 2, 23),
+    (currval('packs_id_seq'), 3, 750),
+    (currval('packs_id_seq'), 4, 10),
+    (currval('packs_id_seq'), 5, 5);
+
+
+select * from public.calculate_meteo_bulletin(
+    public.get_lst_parameter(currval('packs_id_seq')::integer),
+    1
+);
+
+--тест
+insert into packs (created_at, id_user, id_equipment_type)
+values ('2026-09-26 11:00:00', 3, 1);
+
+insert into parameters (id_pack, id_type_parameter, param_value)
+values
+    (currval('packs_id_seq'), 1, 100),
+    (currval('packs_id_seq'), 2, 25),
+    (currval('packs_id_seq'), 3, 765),
+    (currval('packs_id_seq'), 4, 15),
+    (currval('packs_id_seq'), 5, 6);
+
+
+select * from public.calculate_meteo_bulletin(
+    public.get_lst_parameter(currval('packs_id_seq')::integer),
+    1
+);
+
+
+--тест
+insert into packs (created_at, id_user, id_equipment_type)
+values ('2026-09-27 12:00:00', 4, 2);
+
+insert into parameters (id_pack, id_type_parameter, param_value)
+values
+    (currval('packs_id_seq'), 1, 450),
+    (currval('packs_id_seq'), 2, 18),
+    (currval('packs_id_seq'), 3, 760),
+    (currval('packs_id_seq'), 4, 20),
+    (currval('packs_id_seq'), 6, 75);
+
+select * from public.calculate_meteo_bulletin(
+    public.get_lst_parameter(currval('packs_id_seq')::integer),
+    2
+);
+
