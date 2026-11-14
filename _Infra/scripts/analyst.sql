@@ -21,7 +21,7 @@ LEFT JOIN dbo.size z ON z.ID = p.SizeID;
 -- `journal` связан с `personnel` через `loginid`
 SELECT COUNT(*) AS Всего, COUNT(per.personid) AS Нашлось
 FROM dbo.journal j
-LEFT JOIN dbo.personnel per ON per.personid = TRY_CAST(j.loginid AS int);
+LEFT JOIN dbo.personnel per ON per.personid = j.loginid;
 
 
 --  `bm_StorageOperations_Table` с `journal` через `SourceID`
