@@ -1,183 +1,178 @@
-# 1. Закупки продукции
-
-## 1.1. `bm_StorageOperations` - операции склада
+# 1 Закупки продукции
+## 1.1 `bm_StorageOperations` - операции склада
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID строки | `6326063` |
-| `DocumentID` | Документ | `465980` |
+| `ID` | ID строки | `4780421` |
+| `DocumentID` | Документ | `388235` |
 | `OperationID` | Тип операции | `1` |
 | `SourceID` | Строка чека `journal.transnumber` | `0` |
 | `BludoID` | Блюдо | `0` |
-| `ProductID` | Товар | `4377` |
-| `VendorID` | Поставщик | `91` |
+| `ProductID` | Товар | `4368` |
+| `VendorID` | Поставщик | `200` |
 | `StorageID` | Склад | `41` |
-| `RangeID` | Размер/диапазон | `42` |
-| `Price` | Цена | `404.00` |
+| `RangeID` | Размер | `42` |
+| `Price` | Цена | `323.00` |
 | `PriceCost` | Себестоимость | `0.00` |
-| `Count` | Количество | `6.0000` |
-| `Amount` | Сумма строки | `2424.00` |
+| `Count` | Количество | `2.7640` |
+| `Amount` | Сумма | `892.77` |
 | `Rest` | Остаток после операции | `0.0000` |
-| `Period` | Период | `202312` |
+| `Period` | Период | `202011` |
 | `ReasonID` | Причина списания | `NULL` |
 
-Связаны через внешний ключ: `bm_JournalBarnetDocs`, `product`, `storages`, `bm_StorageOperationsType`.
+Связаны через внешний ключ: `bm_JournalBarnetDocs`, `product`, `storages`, `bm_StorageOperationsType`
 
-Неявно связаны:  `vendors` -  `VendorID`, `bm_ReasonDebit` -  `ReasonID`.
+Неявно связаны:  `vendors` -  `VendorID`, `bm_ReasonDebit` -  `ReasonID`
 
-## 1.2. `product` - продукты и ингредиенты
+## 1.2 `product` - продукты и ингредиенты
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `id` | Внутренний ID | `7719` |
-| `productid` | Внешний код товара | `7427483` |
-| `description` | Наименование | `Комбо 5 30 см` |
-| `CategoryID` | Категория | `359` |
-| `SizeID` | Единица измерения | `1` |
-| `vendorid` | Основной поставщик | `0` |
+| `id` | ID | `4337` |
+| `productid` | Внешний код товара | `1204073` |
+| `description` | Наименование | `Бананы` |
+| `CategoryID` | Категория | `200` |
+| `SizeID` | Единица измерения | `42` |
+| `vendorid` | Основной поставщик | `107` |
 | `cost` | Себестоимость | `0.00` |
 | `basepurchcost` | Базовая закупочная цена | `0.00` |
 | `purchcost` | Закупочная цена | `NULL` |
 | `onhand` | Остаток | `NULL` |
 | `closingcount` | Закрывающий остаток | `0.000` |
 | `lastsold` | Последняя продажа | `NULL` |
-| `IsUse` | Признак использования | `1` |
+| `IsUse` | Признак использования | `0` |
 
-Связаны через внешний ключ: `bm_Journal_Details`, `bm_StorageOperations_Table`, `pricelist`, `recipe`, `category`.
+Связаны через внешний ключ: `bm_Journal_Details`, `bm_StorageOperations_Table`, `pricelist`, `recipe`, `category`
 
-Неявно связаны: `size` - через `SizeID`, `vendors` - через `vendorid`.
+Неявно связаны: `size` через `SizeID`
 
-## 1.3. `vendors` - поставщики
+## 1.3 `vendors` - поставщики
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `id` | ID поставщика | `213` |
-| `clientid` | Краткое имя/внешний код | `ООО Продбаза` |
-| `firstname` | Наименование | `ООО Продбаза` |
-| `clientgroup` | Группа контрагента | `31` |
+| `id` | ID поставщика | `90` |
+| `clientid` | Краткое имя/внешний код | `Габур` |
+| `firstname` | Наименование | `ИП Габур` |
+| `clientgroup` | Группа контрагента | `32` |
 | `INN` | ИНН | `""` |
 | `KPP` | КПП | `""` |
 | `OGRN` | ОГРН | `""` |
 | `accountn` | Расчётный счёт | `""` |
-| `IsUse` | Активность | `1` |
+| `IsUse` | Активность | `0` |
 
-Связаны через внешний ключ: `vendorgroup`.
+Связаны через внешний ключ: `vendorgroup`
 
-## 1.4. `pricelist` - цены
+## 1.4 `pricelist` - цены
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `id` | ID строки | `234802` |
-| `DocumentID` | Документ установки цен | `465980` |
-| `productid` | Товар | `4377` |
-| `groupid` | Ценовая группа | `3` |
-| `basecost` | Базовая цена | `0.00` |
-| `netcost` | Цена нетто | `404.00` |
+| `id` | ID строки | `113681` |
+| `DocumentID` | Документ установки цен | `142417` |
+| `productid` | Товар | `4544` |
+| `groupid` | Ценовая группа | `2` |
+| `basecost` | Базовая цена | `140.00` |
+| `netcost` | Цена нетто | `NULL` |
 | `vendorid` | Поставщик | `NULL` |
 | `dateeff` | Дата действия | `NULL` |
 
-Связаны через внешний ключ: `bm_JournalBarnetDocs`, `pricegroup`.
+Связаны через внешний ключ: `bm_JournalBarnetDocs`, `pricegroup`
 
 ---
 
-# 2. Продажи товара
+# 2 Продажи товара
 
-## 2.1. `journal` - продажи
+## 2.1 `journal` - продажи
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `transnumber` | Номер строки транзакции | `1950755` |
-| `receiptn` | Номер чека | `55133947` |
-| `dater` | Дата/время | `2023-12-02 22:40:20` |
-| `transtype` | Тип строки | `101` |
-| `id` | Внешний код товара | `9969318` |
-| `description` | Наименование | `Пицца Марио 30см (с сосисками)` |
-| `quantity` | Количество | `1.000` |
-| `price` | Цена | `561.00` |
-| `amount` | Сумма | `561.00` |
-| `discount` | Скидка, % | `15.000` |
-| `discountamount` | Сумма скидки | `99.00` |
+| `transnumber` | Номер строки транзакции | `1675584` |
+| `receiptn` | Номер чека | `0` |
+| `dater` | Дата/время | `2020-11-10 09:49:09` |
+| `transtype` | Тип строки | `301` |
+| `id` | Внешний код товара | `906` |
+| `description` | Наименование | `Доставка` |
+| `quantity` | Количество | `0.000` |
+| `price` | Цена | `0.00` |
+| `amount` | Сумма | `0.00` |
+| `discount` | Скидка, % | `0.000` |
+| `discountamount` | Сумма скидки | `0.00` |
 | `cost` | Себестоимость | `0.00` |
-| `loginid` | Сотрудник/касса | `906` |
-| `customerid` | Клиент | `12345` |
+| `loginid` | Сотрудник | `906` |
+| `customerid` | Клиент | `""` |
 | `status` | Статус | `0` |
 | `flagrefund` | Возврат | `0` |
 
-Связаны через внешний ключ: `transtype`.
+Связаны через внешний ключ: `transtype`, `bm_Journal_Details`
 
-Неявно связаны: `product` - через `id`, `personnel` -  `loginid`, `clients` - `customerid`, `bm_Journal_Details` - `SourceID`, `bm_JournalBarnetDocs` - `TicketNumber`, `bm_StorageOperations_Table` - `SourceID`.
+Неявно связаны:  `personnel` через  `loginid`
 
-## 2.2. `bm_Journal_Details` - детализация продаж
+## 2.2 `bm_Journal_Details` - детализация продаж
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID строки | `225297748` |
-| `SourceID` | Строка чека `journal.transnumber` | `1950990` |
-| `ProductID` | Товар | `7650` |
-| `BludoID` | Блюдо | `4822` |
-| `sBrutto` | Брутто | `80.000` |
+| `ID` | ID строки | `11530445` |
+| `SourceID` | Строка чека `journal.transnumber` | `1675591` |
+| `ProductID` | Товар | `4407` |
+| `BludoID` | Блюдо | `4451` |
+| `sBrutto` | Брутто | `400.000` |
 | `Quantity` | Количество порций | `1.0000` |
-| `Count` | Количество ингредиента | `0.0800` |
-| `TicketNumber` | Номер чека | `52169561` |
+| `Count` | Количество ингредиента | `0.4000` |
+| `TicketNumber` | Номер чека | `14740696` |
 | `RangeID` | Размер | `42` |
 | `SizeID` | Единица | `163` |
 | `StorageID` | Склад | `41` |
 
-Связаны через внешний ключ: `journal`, `product`, `size`, `storages`.
+Связаны через внешний ключ: `journal`, `product`, `size`, `storages`
 
-## 2.3. `bm_StorageOperations_Table` - себестоимость продаж
+## 2.3 `bm_StorageOperations_Table` - себестоимость продаж
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID строки | `165000` |
-| `DocumentID` | Документ | `465974` |
+| `ID` | ID строки | `134198` |
+| `DocumentID` | Документ | `388540` |
 | `OperationID` | Тип операции | `2` |
-| `SourceID` | Строка чека | `1950928` |
-| `BludoID` | Блюдо | `4529` |
-| `ProductID` | Товар | `4382` |
-| `Price` | Цена | `275.30` |
-| `PriceCost` | Себестоимость | `275.30` |
-| `Count` | Количество | `-0.0500` |
-| `Amount` | Сумма | `-13.77` |
-| `ClientID` | Клиент | `0` |
-| `ReasonID` | Причина | `122` |
+| `SourceID` | Строка чека | `200634` |
+| `BludoID` | Блюдо | `4641` |
+| `ProductID` | Товар | `4345` |
+| `Price` | Цена | `0.00` |
+| `PriceCost` | Себестоимость | `0.00` |
+| `Count` | Количество | `0.0000` |
+| `Amount` | Сумма | `0.0000` |
+| `ReasonID` | Причина | `24` |
 
-Связаны через внешний ключ: `bm_JournalBarnetDocs`, `product`, `storages`, `bm_StorageOperationsType`.
+Связаны через внешний ключ: `bm_JournalBarnetDocs`, `product`, `storages`, `bm_StorageOperationsType`
 
-Неявно связаны: `journal` - через `SourceID`, `bm_ReasonDebit` - `ReasonID`.
-
-## 2.4. `clients` - клиенты
-
-| Колонка | Назначение | Пример |
-|---|---|---|
-| `id` | Внутренний ID | `4022` |
-| `clientid` | Внешний код/телефон | `824646725595` |
-| `lastname` | Фамилия | `Силаева` |
-| `firstname` | Имя | `Владислава` |
-| `clientgroup` | Группа | `203` |
-| `points` | Баллы | `150.00` |
-| `bonus` | Бонус | `0.000` |
-| `discount` | Скидка | `0.000` |
-| `personid` | Сотрудник | `906` |
-| `paymenttypeid` | Тип оплаты | `0` |
-
-Связаны через внешний ключ: `clientgroup`.
-
-Неявно связаны: `bm_BonusHistory` - через `ClientID`.
+Неявно связаны: `journal` - через `SourceID`, `bm_ReasonDebit` - `ReasonID`
 
 ---
 
-# 3. Взаимоотношения с поставщиками
+# 3 Взаимоотношения с поставщиками
 
-## 3.1. `vendors` - поставщики
+## 3.1 `vendors` - поставщики
 
-Колонки - п. 1.3. Связи - п. 1.1, 1.3.
+Колонки и связи - п. 1.3
 
-## 3.2. Документы поступления
+## 3.2 `bm_JournalBarnetDocs` - документы поступления
 
-Колонки - п. 1.1, 1.4, 1.5.
+| Колонка | Назначение | Пример |
+|---|---|---|
+| `ID` | ID документа | `1216` |
+| `JournalID` | Журнал | `1` |
+| `ShiftID` | Смена | `65` |
+| `DocumentTypeID` | Тип документа, `4` - поступление | `1` |
+| `DocumentNumber` | Номер документа | `1` |
+| `Period` | Дата документа | `2013-07-23 10:00:00` |
+| `CompanyID` | Юрлицо | `6` |
+| `TicketNumber` | Номер чека | `NULL` |
+| `Amount` | Сумма документа | `0.00` |
+| `PersonID` | Автор документа | `897` |
+| `IsUse` | Признак использования | `1` |
 
-## 3.3. `vendorgroup` - группы поставщиков
+Связаны через внешний ключ: `bm_JournalTypeDocuments`, `bm_JournalType`, `bm_Companies`, `bm_ShiftsOperations`.
+
+Неявно связаны: `journal` - через `TicketNumber`.
+
+## 3.3 `vendorgroup` - группы поставщиков
 
 | Колонка | Назначение | Пример |
 |---|---|---|
@@ -187,14 +182,14 @@
 
 ---
 
-# 4. Работа персонала
+# 4 Работа персонала
 
-## 4.1. `personnel` - сотрудники
+## 4.1 `personnel` - сотрудники
 
 | Колонка | Назначение | Пример |
 |---|---|---|
 | `personid` | ID сотрудника | `897` |
-| `firstname` | Имя/роль | `Администратор Barnet` |
+| `firstname` | Имя | `Администратор Barnet` |
 | `lastname` | Фамилия | `""` |
 | `securityaccess` | Уровень доступа | `9` |
 | `flagpos` | Доступ к POS | `1` |
@@ -205,136 +200,86 @@
 
 Связаны через внешний ключ: `bm_BonusHistory`.
 
-Неявно связаны: `journal` - через `loginid`, `bm_JournalBarnetDocs` - через `PersonID`, `bm_JournalSessions` - через `PersonID`, `bm_PersonnelSecurity` - через `PersonID`, `bm_SecurityObjects_Info` - через `ManagerID`, `securityaccess` - через `securityaccess`, `storages` - через `ResponsibleID`.
+Неявно связаны: `journal` - через `loginid`, `bm_JournalBarnetDocs` - через `PersonID`, `bm_JournalSessions` - через `PersonID`, `bm_PersonnelSecurity` - через `PersonID`
 
-## 4.2. `bm_BonusHistory` - история бонусов
-
-| Колонка | Назначение | Пример |
-|---|---|---|
-| `ID` | ID записи | `84860` |
-| `ClientID` | Клиент | `255` |
-| `ActionName` | Тип действия | `Journal` |
-| `BonusValue` | Значение бонуса | `13542789.74` |
-| `Period` | Дата | `2023-12-06 10:31:54` |
-| `TicketNumber` | Номер чека | `59368651` |
-| `PersonID` | Сотрудник | `906` |
-| `IsCalc` | Признак расчёта | `1` |
-
-Связаны через внешний ключ: `personnel`.
-
-Неявно связаны: `journal` - через `TicketNumber`.
-
-`BonusValue` - снимок баланса, не начисление.
-
-## 4.3. `journal` - действия сотрудников
-
-Колонки - п. 2.1. `loginid = 906` («Доставка») - 94,8% чеков, при анализе продаж исключать.
-
-## 4.4. `bm_JournalSessions` - журнал событий ПО
+## 4.2 `bm_BonusHistory` - история бонусов
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID записи | `174072` |
-| `Type` | Источник события | `barnetbc.ru` |
-| `Message` | Текст | `Ошибка … SSL/TLS` |
-| `IsError` | Ошибка | `1` |
-| `DateAdd` | Дата | `2023-12-06 14:18:08` |
+| `ID` | ID записи | `1` |
+| `ClientID` | Клиент | `3352` |
+| `ActionName` | Тип действия | `User` |
+| `BonusValue` | Значение бонуса | `0.00` |
+| `Period` | Дата | `2016-04-05 11:31:10` |
+| `TicketNumber` | Номер чека | `NULL` |
+| `PersonID` | Сотрудник | `897` |
+| `IsCalc` | Признак расчёта | `NULL` |
+
+Связаны через внешний ключ: `personnel`
+
+Неявно связаны: `journal` - через `TicketNumber`
+
+`BonusValue` - снимок баланса, не начисление
+
+## 4.3 `journal` - продажи 
+
+Колонки - п. 2.1
+
+## 4.4 `bm_JournalSessions` - журнал событий 
+
+| Колонка | Назначение | Пример |
+|---|---|---|
+| `ID` | ID записи | `1` |
+| `Type` | Источник события | `Система` |
+| `Message` | Текст | `Произведена очистка журнала системных сообщений.` |
+| `IsError` | Ошибка | `0` |
+| `DateAdd` | Дата | `2019-10-10 10:09:48` |
 | `PersonID` | Сотрудник | `897` |
 
-Неявно связаны: `personnel` - через `PersonID`.
+Неявно связаны: `personnel` - через `PersonID`
 
-## 4.5. `bm_PersonnelSecurity` - права сотрудников
-
-| Колонка | Назначение | Пример |
-|---|---|---|
-| `ID` | ID записи | `2798` |
-| `PersonID` | Сотрудник | `1004` |
-| `ObjectID` | Объект доступа | `50` |
-| `IsUse` | Включено | `0` |
-
-Связаны через внешний ключ: `bm_SecurityObjects`.
-
-Неявно связаны: `personnel` - через `PersonID`.
-
-## 4.6. `bm_SecurityObjects` - объекты доступа
+## 4.5 `bm_PersonnelSecurity` - права сотрудников
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID объекта | `274` |
-| `ParentSystem` | Система | `NULL` |
-| `SecurityGroup` | Группа | `""` |
-| `ObjectName` | Код объекта | `frmReferensCashTypes` |
-| `Description` | Описание | `** Новый объект доступа` |
+| `ID` | ID записи | `1397` |
+| `PersonID` | Сотрудник | `906` |
+| `ObjectID` | Объект доступа | `36` |
+| `IsUse` | Включено | `1` |
 
-Неявно связаны: `bm_SecurityObjects_Info` - через `ParentID`.
+Связаны через внешний ключ: `bm_SecurityObjects`
 
-## 4.7. `bm_SecurityObjects_Info` - настройки объектов
-
-| Колонка | Назначение | Пример |
-|---|---|---|
-| `ID` | ID записи | `1602` |
-| `ParentID` | Объект | `77` |
-| `KeyName` | Параметр | `PreviewDetails` |
-| `KeyValue` | Значение | `0` |
-| `ManagerID` | Сотрудник | `897` |
-
-## 4.8. Мелочь
-
-| Таблица | Назначение | Колонки (пример) |
-|---|---|---|
-| `securityaccess` | Уровни доступа | `securityaccessid` `3`, `description` `Manager/Adm` |
-| `bm_ShiftsOperations` | Смены | `ID` `65`, `ShiftNumber` `1`, `Amount` `0.00`, `DateAdd` `2015-07-14` |
-| `webclients` | Веб-роли | `webclientid` `20`, `login` `0`, `firstname` `Повар` |
+Неявно связаны: `personnel` - через `PersonID`
 
 ---
 
-# 5. Остатки
+# 5 Остатки
 
-## 5.1. `bm_StorageOperations` - движения склада
+## 5.1 `bm_StorageOperations` - движения склада
 
 Колонки и связи - п. 1.1.
 
-| Операция | Сумма |
-|---|---|
-| `1` поступление | +20 018 690,28 |
-| `2` списание | -86 096 814,10 |
-
-## 5.2. `bm_StorageOperationsType` - типы операций
+## 5.2 `bm_StorageOperationsType` - типы операций
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID типа | `5` |
-| `Description` | Название | `Возврат` |
+| `ID` | ID типа | `1` |
+| `Description` | Название | `Поступление` |
 | `Factor` | Знак движения | `1` |
 
-Используются только `1` и `2`.
+Связаны через внешний ключ: `bm_StorageOperations`, `bm_StorageOperations_Table`
 
-## 5.3. `bm_ReasonDebit` - причины списания
+## 5.3 `bm_ReasonDebit` - причины списания
 
 | Колонка | Назначение | Пример |
 |---|---|---|
-| `ID` | ID причины | `208` |
-| `ParentID` | Родитель | `7` |
-| `Description` | Название | `Путина Екатерина` |
+| `ID` | ID причины | `1` |
+| `ParentID` | Родитель | `0` |
+| `Description` | Название | `Порча продукта` |
 | `IsUse` | Активность | `1` |
 
-## 5.4. `bm_StorageOperations_Table` - сводные списания
+Неявно связаны: `bm_StorageOperations` через `ReasonID`
 
-Колонки - п. 2.3. Сумма -2 650 291,85, покрыто 3 405 чеков из 44 838.
+## 5.4 `bm_StorageOperations_Table` -  списания
 
-## 5.5. `product` и `storages`
-
-Колонки - п. 1.2.
-
-| Поле | Значение |
-|---|---|
-| `product.onhand` | `NULL` у всех |
-| `product.closingcount` | `0` у всех |
-| `product.cost`, `purchcost` | `0` / `NULL` |
-| `product.basepurchcost` | заполнен у 63 товаров |
-| `storages` | один склад `id = 41` |
-
-## 5.6. `bm_Journal_Details` и `recipe`
-
-Колонки - п. 1.2, 2.2.
-
+Колонки - п. 2.3
