@@ -42,7 +42,7 @@
 | `lastsold` | Последняя продажа | `NULL` |
 | `IsUse` | Признак использования | `0` |
 
-Связаны через внешний ключ: `bm_Journal_Details`, `bm_StorageOperations_Table`, `pricelist`, `recipe`, `category`
+Связаны через внешний ключ: `bm_Journal_Details`, `bm_StorageOperations_Table`, `pricelist`, `recipe`, `category`, `bm_ManufactureOrders`, `productinfo`, `closingcount`, `bm_StorageOperations`
 
 Неявно связаны: `size` через `SizeID`
 
