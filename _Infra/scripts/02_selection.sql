@@ -4,11 +4,10 @@ select id, sizeid as name,
 portionrate as factor from size;
 
 select 'insert into dim_ranges(external_id, name, factor ) values ('
-    + cast(id as varchar(max)) + ','''   
-    + sizeid + ''','  
-    + caST(portionrate as varchar(max))   + ');' 
-    as sql
- from size;
+     + cast(id as varchar(max)) + ','''
+     + sizeid + ''','
+     + cast(portionrate as varchar(max)) + ');' as sql
+from size;
 
 -- категории
 select * from
@@ -24,9 +23,9 @@ order by t1.parent_id, t1.name;
 
 select 'insert into dim_categories(external_id, name, parent_id, parent_name) values ('
      + cast(t1.id as varchar(max)) + ','
-     + '''' + replace(isnull(t1.name,''), '''', '''''') + '''' + ','
-     + case when t1.parent_id is null then 'null' else cast(t1.parent_id as varchar(max)) end + ','
-     + '''' + replace(isnull(t1.parent_name,''), '''', '''''') + ''''
+     + '''' + isnull(t1.name,'') + ''','
+     + case when t1.parent_id is null then 'null' else cast(t1.parent_id as varchar(max)) end + ','''
+     + isnull(t1.parent_name,'') + ''''
      + ');' as sql
 from (
   select c.id,
@@ -49,9 +48,9 @@ select * FROM
 
 select 'insert into dim_vendors(external_id, name, parent_id, parent_name) values ('
      + cast(t1.id as varchar(max)) + ','
-     + '''' + replace(isnull(t1.name,''), '''', '''''') + '''' + ','
-     + case when t1.parent_id is null then 'null' else cast(t1.parent_id as varchar(max)) end + ','
-     + '''' + replace(isnull(t1.parent_name,''), '''', '''''') + '''' + ');' as sql
+     + '''' + isnull(t1.name,'') + ''','
+     + case when t1.parent_id is null then 'null' else cast(t1.parent_id as varchar(max)) end + ','''
+     + isnull(t1.parent_name,'') + '''' + ');' as sql
 from (
     select id, clientid as name, clientgroup as parent_id,
            t2.description as parent_name
@@ -70,10 +69,10 @@ from personnel;
 
 select 'insert into dim_personnel(personid, lastname, firstname, middlename, securityaccess) values ('
      + cast(personid as varchar(max)) + ','
-     + '''' + replace(lastname, '''', '''''') + '''' + ','
-     + '''' + replace(firstname, '''', '''''') + '''' + ','
-     + '''' + replace(middlename, '''', '''''') + '''' + ','
-     + cast(securityaccess as varchar(max)) + ','
+     + '''' + lastname + ''','''
+     + firstname + ''','''
+     + middlename + '''' + ','
+     + cast(securityaccess as varchar(max))
      + ');' as sql
 from personnel;
 
@@ -88,8 +87,8 @@ order by id;
 
 select 'insert into dim_storages(storageid, companyid, description, responsibleid, departmentid) values ('
      + cast(t1.storageid as varchar(max)) + ','
-     + cast(t1.companyid as varchar(max)) + ','
-     + '''' + replace(t1.description, '''', '''''') + '''' + ','
+     + cast(t1.companyid as varchar(max)) + ','''
+     + t1.description + '''' + ','
      + cast(t1.responsibleid as varchar(max)) + ','
      + cast(t1.departmentid as varchar(max))
      + ');' as sql
@@ -106,8 +105,8 @@ from bm_StorageOperationsType
 order by ID;
 
 select 'insert into dim_storage_operations_type(operationtypeid, description, factor) values ('
-     + cast(t1.operationtypeid as varchar(max)) + ','
-     + '''' + replace(t1.description, '''', '''''') + '''' + ','
+     + cast(t1.operationtypeid as varchar(max)) + ','''
+     + t1.description + '''' + ','
      + cast(t1.factor as varchar(max))
      + ');' as sql
 from (
@@ -122,8 +121,8 @@ from pricegroup
 order by pricegroupid;
 
 select 'insert into dim_price_groups(external_id, name) values ('
-     + cast(t1.external_id as varchar(max)) + ','
-     + '''' + replace(isnull(t1.name,''), '''', '''''') + ''''
+     + cast(t1.external_id as varchar(max)) + ','''
+     + isnull(t1.name,'') + ''''
      + ');' as sql
 from (
     select pricegroupid as external_id, description as name
