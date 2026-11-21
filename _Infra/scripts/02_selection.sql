@@ -49,12 +49,9 @@ select * FROM
 
 select 'insert into dim_vendors(external_id, name, parent_id, parent_name) values ('
      + cast(t1.id as varchar(max)) + ','
-     + '''' + replace(isnull(t1.name,''), '''', '''''') + ''''
-     + ','
-     + case when t1.parent_id is null then 'null' else cast(t1.parent_id as varchar(max)) end
-     + ','
-     + '''' + replace(isnull(t1.parent_name,''), '''', '''''') + ''''
-     + ');' as sql
+     + '''' + replace(isnull(t1.name,''), '''', '''''') + '''' + ','
+     + case when t1.parent_id is null then 'null' else cast(t1.parent_id as varchar(max)) end + ','
+     + '''' + replace(isnull(t1.parent_name,''), '''', '''''') + '''' + ');' as sql
 from (
     select id, clientid as name, clientgroup as parent_id,
            t2.description as parent_name
@@ -90,11 +87,11 @@ from storages
 order by id;
 
 select 'insert into dim_storages(storageid, companyid, description, responsibleid, departmentid) values ('
-     + isnull(cast(t1.storageid as varchar(max)),'null') + ','
-     + isnull(cast(t1.companyid as varchar(max)),'null') + ','
-     + '''' + replace(isnull(t1.description,''), '''', '''''') + '''' + ','
-     + isnull(cast(t1.responsibleid as varchar(max)),'null') + ','
-     + isnull(cast(t1.departmentid as varchar(max)),'null')
+     + cast(t1.storageid as varchar(max)) + ','
+     + cast(t1.companyid as varchar(max)) + ','
+     + '''' + replace(t1.description, '''', '''''') + '''' + ','
+     + cast(t1.responsibleid as varchar(max)) + ','
+     + cast(t1.departmentid as varchar(max))
      + ');' as sql
 from (
     select id as storageid, CompanyID as companyid, description,
@@ -110,7 +107,7 @@ order by ID;
 
 select 'insert into dim_storage_operations_type(operationtypeid, description, factor) values ('
      + cast(t1.operationtypeid as varchar(max)) + ','
-     + '''' + replace(isnull(t1.description,''), '''', '''''') + '''' + ','
+     + '''' + replace(t1.description, '''', '''''') + '''' + ','
      + cast(t1.factor as varchar(max))
      + ');' as sql
 from (
