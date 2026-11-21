@@ -71,7 +71,7 @@ select personid,
        securityaccess
 from personnel;
 
-select 'insert into dim_personnel(personid, lastname, firstname, middlename, securityaccess, cardid) values ('
+select 'insert into dim_personnel(personid, lastname, firstname, middlename, securityaccess) values ('
      + cast(personid as varchar(max)) + ','
      + '''' + replace(lastname, '''', '''''') + '''' + ','
      + '''' + replace(firstname, '''', '''''') + '''' + ','
